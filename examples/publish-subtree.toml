@@ -1,0 +1,81 @@
+# Publish part of a private monorepo as a public repository, one squashed commit per release.
+#
+# Run from this folder (relative paths are read from the workflow file's folder):
+#   copybera validate publish-subtree.toml
+#   copybera migrate publish-subtree.toml --dry-run
+#   copybera migrate publish-subtree.toml
+#   copybera lint ../public-mirror.git --workflow publish-subtree.toml --count
+#   copybera gate publish-subtree.toml --config gate.toml --files
+#
+# Every path below is a placeholder: point them at your own checkout, mirror and private lists.
+
+[workflow]
+name = "publish-subtree"
+mode = "squash"
+dry_run = false
+receipt = "receipts/publish-subtree.json"
+
+[origin]
+path = "../private-monorepo"
+ref = "v1.0.0"
+# Start after the previous release; without it the first run reads the whole history up to `ref`.
+since = "v0.9.0"
+
+# A local bare repository: review it, then push it yourself.
+[destination]
+path = "../public-mirror.git"
+fetch = "main"
+push = "main"
+
+[paths.origin]
+include = ["libs/parser-internal/**", "docs/guide/**", "LICENSE", "README.md"]
+exclude = ["**/*.secret", "**/fixtures/private/**"]
+
+[paths.destination]
+include = ["**"]
+exclude = []
+
+[authoring]
+default = { name = "Project Authors", email = "authors@example.invalid" }
+
+[[authoring.map]]
+from = { name = "Ada Lovelace", email = "ada@corp.example" }
+to = { name = "Ada Lovelace", email = "ada@example.invalid" }
+
+# Internal planning notes never leave the monorepo.
+[[transformations]]
+type = "strip_paths"
+globs = ["**/NOTES.md", "**/internal/**"]
+
+# Ticket ids such as TICKET-1234 are removed from files and commit messages, with the parenthetical around them. The
+# lint refuses the same patterns in the destination (`[lint] ids` names others).
+[[transformations]]
+type = "strip_references"
+patterns = ["TICKET-[0-9]+"]
+
+# Path segments are renamed: libs/parser-internal/src/lib.rs becomes libs/parser/src/lib.rs.
+[[transformations]]
+type = "move_paths"
+pairs = [["parser-internal", "parser"]]
+
+[[transformations]]
+type = "replace_text"
+pattern = "internal\\.corp\\.example"
+replacement = "example.com"
+on = "both"
+
+[[transformations]]
+type = "drop_empty_commits"
+
+# Optional: a file of private regexes, one per line, kept outside git. The lint refuses any destination file, path,
+# message or author that matches one, and names only the pattern's number. `ids` replaces the reference patterns the
+# lint refuses (default: the strip_references patterns above).
+# [lint]
+# private = "private/patterns.txt"
+# ids = ["TICKET-[0-9]+"]
+
+# Optional: commands run on the exported tree before anything is written; a failing command refuses the run. For an
+# export that is a Cargo workspace, for example:
+# [verify]
+# commands = [["cargo", "metadata", "--format-version", "1"]]
+# on_fail = "refuse"

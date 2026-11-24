@@ -1,0 +1,27 @@
+[workspace]
+resolver = "2"
+members = ["crates/copybera", "crates/copybera-rules"]
+
+[workspace.package]
+edition = "2021"
+rust-version = "1.91.0"
+license = "MIT OR Apache-2.0"
+repository = "https://github.com/voidfab/copybera-rs"
+readme = "README.md"
+keywords = ["git", "copybara", "export", "monorepo", "migration"]
+categories = ["command-line-utilities", "development-tools"]
+# No crates.io release yet.
+publish = false
+
+[workspace.dependencies]
+anyhow = "1"
+clap = { version = "4", features = ["derive"] }
+fancy-regex = "=0.14.0"
+globset = "0.4"
+libc = "0.2"
+regex = "1"
+serde = { version = "1", features = ["derive"] }
+serde_json = "1"
+tempfile = "3"
+toml = "0.8"
+toml_edit = "0.22"

@@ -1,0 +1,43 @@
+# Mirror a documentation folder commit for commit (iterative mode): each origin commit that touches `docs/` becomes one
+# destination commit, labelled with the origin commit it came from, so the next run continues where this one stopped.
+
+[workflow]
+name = "mirror-docs"
+mode = "iterative"
+dry_run = false
+receipt = "receipts/mirror-docs.json"
+
+[origin]
+path = "../product"
+ref = "main"
+
+[destination]
+path = "../docs-mirror.git"
+fetch = "main"
+push = "main"
+
+[paths.origin]
+include = ["docs/**"]
+exclude = ["docs/drafts/**"]
+
+[paths.destination]
+include = ["**"]
+exclude = ["CNAME"]
+
+[authoring]
+default = { name = "Docs Bot", email = "docs-bot@example.invalid" }
+
+# Path segments are renamed: docs/guide/start.md becomes site/guide/start.md.
+[[transformations]]
+type = "move_paths"
+pairs = [["docs", "site"]]
+
+# Each message keeps its first line, with references stripped. (A model hook that rewrites messages within a token
+# budget is reserved: `hook = "low_cost_model"` parses, but this version always runs the first-line fallback.)
+[[transformations]]
+type = "rewrite_messages"
+prompt_budget_tokens = 256
+fallback = "first_line_strip_references"
+
+[[transformations]]
+type = "drop_empty_commits"

@@ -1,0 +1,30 @@
+[package]
+name = "copybera"
+version = "0.0.1"
+edition.workspace = true
+rust-version.workspace = true
+license.workspace = true
+repository.workspace = true
+readme.workspace = true
+keywords.workspace = true
+categories.workspace = true
+publish.workspace = true
+description = "The copybera command: run a migration from a source repository to a target repository under a rules file"
+
+[[bin]]
+name = "copybera"
+path = "src/main.rs"
+
+[dependencies]
+anyhow.workspace = true
+clap.workspace = true
+libc.workspace = true
+copybera-rules = { path = "../copybera-rules" }
+regex.workspace = true
+serde_json.workspace = true
+tempfile.workspace = true
+toml.workspace = true
+
+[dev-dependencies]
+serde_json.workspace = true
+tempfile.workspace = true

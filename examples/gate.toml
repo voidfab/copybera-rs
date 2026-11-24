@@ -1,0 +1,20 @@
+# A gate for an exported tree: `copybera gate publish-subtree.toml --config gate.toml --files`. The gate scans the
+# destination's push branch by class (home and volume paths, emails, LAN addresses, tokens, secret references, private
+# terms and paths, leftover names, licences) and prints classes, counts and paths, never the matched text.
+
+[gate]
+# Your own networks, one CIDR per line (kept outside git): an address inside one is a finding.
+# networks_file = "private/networks.txt"
+networks = ["172.30.12.0/24"]
+# Home-folder and volume names that name nobody.
+placeholders = ["example", "user", "runner"]
+# Paths that must never be in the export, whatever the workflow says.
+private_paths = ["**/internal/**", "**/*.secret"]
+# An old project name that must not survive a rename.
+leftover = ['\bparsekit\b']
+
+# Every allowance names a class, path globs and a reason.
+[[gate.allow]]
+class = "email"
+paths = ["AUTHORS"]
+reason = "the published contributor list"

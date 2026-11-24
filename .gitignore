@@ -1,0 +1,5 @@
+/target
+.DS_Store
+*.log
+# The receipts a local run of the examples writes (`receipt = "receipts/..."`).
+/receipts/
